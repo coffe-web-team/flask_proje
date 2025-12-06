@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Coffee House</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <h1 class="logo"><a href="/">Coffee House</a></h1>
+    <nav class="main-nav">
+      <a href="/">Ana Sayfa</a>
+      <a href="/menu">Menü</a>
+      <a href="/about">Hakkımızda</a>
+      <a href="/admin/login">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-list">
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container">© 2025 Coffee House</div>
+</footer>
+</body>
+</html>

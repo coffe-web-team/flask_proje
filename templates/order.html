@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Sipariş - {{ product.name }}</h2>
+<form method="post">
+  <label>Adınız</label>
+  <input name="customer_name" required>
+  <label>Telefon</label>
+  <input name="customer_phone" required>
+  <button type="submit" class="btn">Sipariş Gönder</button>
+</form>
+{% endblock %}
+

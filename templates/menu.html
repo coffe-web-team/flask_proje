@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Menü</h2>
+<div class="grid">
+  {% for p in products %}
+  <div class="card">
+    <img src="{{ p.image_url }}" alt="{{ p.name }}">
+    <h4>{{ p.name }}</h4>
+    <p>{{ p.description }}</p>
+    <div class="card-footer">
+      <span class="price">{{ p.price }}₺</span>
+      <a class="btn" href="/order/{{ p.id }}">Sipariş Ver</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

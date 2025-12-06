@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Admin Giriş</h2>
+<form method="post">
+  <input name="username" placeholder="Kullanıcı adı" required>
+  <input name="password" type="password" placeholder="Şifre" required>
+  <button type="submit" class="btn">Giriş</button>
+</form>
+{% endblock %}
+

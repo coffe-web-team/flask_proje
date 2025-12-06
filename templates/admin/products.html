@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Ürünler</h2>
+<a href="{{ url_for('admin_add_product') }}" class="btn">Yeni Ürün</a>
+<table class="table">
+  <thead><tr><th>ID</th><th>Ad</th><th>Fiyat</th><th>İşlem</th></tr></thead>
+  <tbody>
+    {% for p in products %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.name }}</td>
+      <td>{{ p.price }}₺</td>
+      <td>
+        <a href="{{ url_for('admin_edit_product', id=p.id) }}">Düzenle</a>
+        <form style="display:inline" method="post" action="{{ url_for('admin_delete_product', id=p.id) }}">
+          <button type="submit">Sil</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

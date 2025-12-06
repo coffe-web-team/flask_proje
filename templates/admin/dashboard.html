@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Yönetici Paneli</h2>
+<ul>
+  <li><a href="{{ url_for('admin_products') }}">Ürün Yönetimi</a></li>
+  <li><a href="{{ url_for('admin_orders') }}">Siparişler</a></li>
+  <li><a href="{{ url_for('admin_logout') }}">Çıkış</a></li>
+</ul>
+<div>
+  <p>Toplam ürün: {{ total_products }}</p>
+  <p>Toplam sipariş: {{ total_orders }}</p>
+</div>
+{% endblock %}
