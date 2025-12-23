@@ -1,17 +1,57 @@
 {% extends "layout.html" %}
+
 {% block content %}
-<h2>Menü</h2>
-<div class="grid">
-  {% for p in products %}
-  <div class="card">
-    <img src="{{ p.image_url }}" alt="{{ p.name }}">
-    <h4>{{ p.name }}</h4>
-    <p>{{ p.description }}</p>
-    <div class="card-footer">
-      <span class="price">{{ p.price }}₺</span>
-      <a class="btn" href="/order/{{ p.id }}">Sipariş Ver</a>
+<div class="container">
+    <h2>Kahve Menüsü</h2>
+
+    <div class="card-grid">
+        <div class="card">
+            <img src="{{ url_for('static', filename='img/products/americano.jpg') }}" alt="Americano">
+            <div class="card-body">
+                <h3>Americano</h3>
+                <p>Yoğun filtre kahve</p>
+                <p class="price">60 ₺</p>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ url_for('static', filename='img/products/cappuccino.jpg') }}" alt="Cappuccino">
+            <div class="card-body">
+                <h3>Cappuccino</h3>
+                <p>Köpüklü sütlü kahve</p>
+                <p class="price">72 ₺</p>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ url_for('static', filename='img/products/latte.jpg') }}" alt="Latte">
+            <div class="card-body">
+                <h3>Latte</h3>
+                <p>Yumuşak içimli sütlü kahve</p>
+                <p class="price">70 ₺</p>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ url_for('static', filename='img/products/mocha.jpg') }}" alt="Mocha">
+            <div class="card-body">
+                <h3>Mocha</h3>
+                <p>Çikolatalı espresso</p>
+                <p class="price">75 ₺</p>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ url_for('static', filename='img/products/espresso.jpg') }}" alt="Espresso">
+            <div class="card-body">
+                <h3>Espresso</h3>
+                <p>Saf espresso shot</p>
+                <p class="price">55 ₺</p>
+            </div>
+        </div>
     </div>
-  </div>
-  {% endfor %}
 </div>
 {% endblock %}
+
+
+
+
+
+
+

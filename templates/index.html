@@ -1,24 +1,32 @@
 {% extends "layout.html" %}
-{% block content %}
-<section class="hero">
-  <h2>En taze kahveler</h2>
-  <p>Günlük kavrulmuş, özenle servis edilen kahveler.</p>
-</section>
 
-<section>
-  <h3>Öne çıkanlar</h3>
-  <div class="grid">
-    {% for p in products %}
-    <div class="card">
-      <img src="{{ p.image_url }}" alt="{{ p.name }}">
-      <h4>{{ p.name }}</h4>
-      <p>{{ p.description }}</p>
-      <div class="card-footer">
-        <span class="price">{{ p.price }}₺</span>
-        <a class="btn" href="/order/{{ p.id }}">Sipariş Ver</a>
-      </div>
+{% block content %}
+<div class="container">
+    <h2>Hoş Geldiniz ☕</h2>
+    <p>En kaliteli kahveler burada.</p>
+
+    <h3 style="margin-top:30px;">Öne Çıkan Kahveler</h3>
+
+    <div class="card-grid">
+        {% for product in products %}
+        <div class="card">
+            <img src="{{ url_for('static', filename='img/' + product.image) }}">
+            <div class="card-body">
+                <h3>{{ product.name }}</h3>
+                <p class="price">{{ product.price }} ₺</p>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-</section>
+</div>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+

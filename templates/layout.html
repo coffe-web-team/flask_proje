@@ -14,7 +14,15 @@
       <a href="/">Ana Sayfa</a>
       <a href="/menu">Menü</a>
       <a href="/about">Hakkımızda</a>
-      <a href="/admin/login">Admin</a>
+      <a href="/contact">İletişim</a>
+      {% if session.get("user") %}
+        <a href="/logout">Çıkış</a>
+        {% if session.get("admin") %}
+          <a href="/admin">Admin Paneli</a>
+        {% endif %}
+      {% else %}
+        <a href="/login">Giriş</a>
+      {% endif %}
     </nav>
   </div>
 </header>

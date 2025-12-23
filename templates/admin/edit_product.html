@@ -1,11 +1,12 @@
-{% extends "layout.html" %}
+
+{% extends "base.html" %}
 {% block content %}
 <h2>Ürün Düzenle</h2>
 <form method="post">
-  <input name="name" value="{{ product.name }}" required>
-  <input name="price" value="{{ product.price }}" required>
-  <input name="image_url" value="{{ product.image_url }}">
-  <textarea name="description">{{ product.description }}</textarea>
-  <button type="submit" class="btn">Güncelle</button>
+<input name="name" value="{{ product.name }}"><br><br>
+<input name="price" value="{{ product.price }}"><br><br>
+<textarea name="description">{{ product.description }}</textarea><br><br>
+<button>Güncelle</button>
 </form>
 {% endblock %}
+

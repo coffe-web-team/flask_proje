@@ -4,3 +4,5 @@ instance/
 __pycache__/
 *.db
 .env
+# Ignore the Downloads folder inside static/img
+static/img/Downloads/

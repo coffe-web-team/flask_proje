@@ -1,20 +1,16 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 {% block content %}
 <h2>Siparişler</h2>
-<table class="table"><thead><tr><th>ID</th><th>Ürün</th><th>Müşteri</th><th>Telefon</th><th>İşlem</th></tr></thead>
-<tbody>
-  {% for o in orders %}
-  <tr>
-    <td>{{ o.id }}</td>
-    <td>{{ o.product.name }}</td>
-    <td>{{ o.customer_name }}</td>
-    <td>{{ o.customer_phone }}</td>
-    <td>
-      <form method="post" action="{{ url_for('admin_delete_order', id=o.id) }}">
-        <button type="submit">Sil</button>
-      </form>
-    </td>
-  </tr>
-  {% endfor %}
-</tbody></table>
+
+<ul>
+{% for order in orders %}
+<li>{{ order.customer_name }} - {{ order.customer_phone }}</li>
+{% endfor %}
+</ul>
 {% endblock %}
+<td>{{ order.status }}</td>
+
+<form method="POST" action="{{ url_for('admin_accept_order', id=order.id) }}">
+    <button class="btn">Kabul Et</button>
+</form>
+

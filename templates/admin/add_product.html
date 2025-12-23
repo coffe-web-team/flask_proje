@@ -1,11 +1,12 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 {% block content %}
-<h2>Yeni Ürün Ekle</h2>
+<h2>Ürün Ekle</h2>
+
 <form method="post">
-  <input name="name" placeholder="Ad" required>
-  <input name="price" placeholder="Fiyat" required>
-  <input name="image_url" placeholder="Resim URL (opsiyonel)">
-  <textarea name="description" placeholder="Açıklama"></textarea>
-  <button type="submit" class="btn">Kaydet</button>
+<input name="name" placeholder="Ürün adı"><br><br>
+<input name="price" placeholder="Fiyat"><br><br>
+<input name="image_url" placeholder="Resim adı (latte.jpg)"><br><br>
+<textarea name="description"></textarea><br><br>
+<button>Ekle</button>
 </form>
 {% endblock %}

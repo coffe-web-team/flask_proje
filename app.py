@@ -1,150 +1,155 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from werkzeug.security import check_password_hash
 from models import db, Product, User, Order
-import os
+from config import Config
 
-def create_app():
-    app = Flask(__name__, template_folder='templates', static_folder='static')
-    app.config.from_pyfile('config.py')
+app = Flask(__name__)
+app.config.from_object(Config)
+db.init_app(app)
 
-    db.init_app(app)
-
-    # ensure instance folder exists
-    os.makedirs('instance', exist_ok=True)
-
-    @app.route('/')
-    def index():
-        # 3 öneri, ana sayfa slider'ı için
-        products = Product.query.limit(3).all()
-        return render_template('index.html', products=products)
-
-    @app.route('/menu')
-    def menu():
-        products = Product.query.all()
-        return render_template('menu.html', products=products)
-
-    @app.route('/about')
-    def about():
-        # about content can be stored in DB in advanced version; kept static for simplicity
-        return render_template('about.html')
-
-    # ---------- Order route (public) ----------
-    @app.route('/order/<int:product_id>', methods=['GET','POST'])
-    def order_product(product_id):
-        product = Product.query.get_or_404(product_id)
-        if request.method == 'POST':
-            customer_name = request.form.get('customer_name')
-            customer_phone = request.form.get('customer_phone')
-            order = Order(product_id=product.id, customer_name=customer_name, customer_phone=customer_phone)
-            db.session.add(order)
+# ---------- ADMIN KULLANICI OLUŞTURMA ----------
+def create_admin_user():
+    with app.app_context():
+        admin = User.query.filter_by(username="admin").first()
+        if not admin:
+            admin = User(username="admin", phone="1234567890", password="admin123", is_admin=True)
+            db.session.add(admin)
             db.session.commit()
-            flash('Siparişiniz alındı.', 'success')
-            return redirect(url_for('menu'))
-        return render_template('order.html', product=product)
+            print("Admin kullanıcı oluşturuldu: Kullanıcı Adı: admin, Şifre: admin123")
 
-    # ---------- ADMIN ----------
-    @app.route('/admin/login', methods=['GET','POST'])
-    def admin_login():
-        if request.method == 'POST':
-            username = request.form.get('username')
-            password = request.form.get('password')
-            user = User.query.filter_by(username=username).first()
-            if user and check_password_hash(user.password, password):
-                session['admin'] = True
-                flash('Giriş başarılı', 'success')
-                return redirect(url_for('admin_dashboard'))
-            flash('Kullanıcı adı veya şifre yanlış', 'danger')
-        return render_template('admin/login.html')
+# ---------- GENEL SAYFALAR ----------
+@app.route("/")
+def index():
+    products = Product.query.limit(3).all()  # Öne çıkan kahveler
+    return render_template("index.html", products=products)
 
-    @app.route('/admin/logout')
-    def admin_logout():
-        session.pop('admin', None)
-        flash('Çıkış yapıldı', 'info')
-        return redirect(url_for('admin_login'))
+@app.route("/menu")
+def menu():
+    products = Product.query.all()
+    return render_template("menu.html", products=products)
 
-    @app.route('/admin/dashboard')
-    def admin_dashboard():
-        if not session.get('admin'):
-            return redirect(url_for('admin_login'))
-        # basit dashboard: ürün sayısı ve sipariş sayısı
-        total_products = Product.query.count()
-        total_orders = Order.query.count()
-        return render_template('admin/dashboard.html', total_products=total_products, total_orders=total_orders)
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
-    # Admin - products list
-    @app.route('/admin/products')
-    def admin_products():
-        if not session.get('admin'):
-            return redirect(url_for('admin_login'))
-        products = Product.query.all()
-        return render_template('admin/products.html', products=products)
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")  # İletişim sayfası eklendi
 
-    # Admin - add product
-    @app.route('/admin/products/add', methods=['GET','POST'])
-    def admin_add_product():
-        if not session.get('admin'):
-            return redirect(url_for('admin_login'))
-        if request.method == 'POST':
-            p = Product(
-                name=request.form.get('name'),
-                description=request.form.get('description'),
-                price=float(request.form.get('price') or 0),
-                image_url=request.form.get('image_url') or '/static/img/default-coffee.jpg'
-            )
-            db.session.add(p)
-            db.session.commit()
-            flash('Ürün eklendi', 'success')
-            return redirect(url_for('admin_products'))
-        return render_template('admin/add_product.html')
+# ---------- AUTH ----------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = User.query.filter_by(username=request.form["username"]).first()
+        if user and user.password == request.form["password"]:
+            session["user"] = user.username
+            session["admin"] = user.is_admin
+            flash("Giriş başarılı!", "success")
+            return redirect(url_for("admin_dashboard" if user.is_admin else "index"))
+        flash("Geçersiz kullanıcı adı veya şifre.", "danger")
+    return render_template("auth/login.html")
 
-    # Admin - edit
-    @app.route('/admin/products/edit/<int:id>', methods=['GET','POST'])
-    def admin_edit_product(id):
-        if not session.get('admin'):
-            return redirect(url_for('admin_login'))
-        p = Product.query.get_or_404(id)
-        if request.method == 'POST':
-            p.name = request.form.get('name')
-            p.description = request.form.get('description')
-            p.price = float(request.form.get('price') or 0)
-            p.image_url = request.form.get('image_url') or p.image_url
-            db.session.commit()
-            flash('Ürün güncellendi', 'success')
-            return redirect(url_for('admin_products'))
-        return render_template('admin/edit_product.html', product=p)
-
-    # Admin - delete
-    @app.route('/admin/products/delete/<int:id>', methods=['POST'])
-    def admin_delete_product(id):
-        if not session.get('admin'):
-            return redirect(url_for('admin_login'))
-        p = Product.query.get_or_404(id)
-        db.session.delete(p)
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        user = User(
+            username=request.form["username"],
+            phone=request.form["phone"],
+            password=request.form["password"],
+            is_admin=False  # Varsayılan olarak admin değil
+        )
+        db.session.add(user)
         db.session.commit()
-        flash('Ürün silindi', 'success')
-        return redirect(url_for('admin_products'))
+        flash("Kayıt başarılı! Giriş yapabilirsiniz.", "success")
+        return redirect(url_for("login"))
+    return render_template("auth/register.html")
 
-    # Admin - orders
-    @app.route('/admin/orders')
-    def admin_orders():
-        if not session.get('admin'):
-            return redirect(url_for('admin_login'))
-        orders = Order.query.all()
-        return render_template('admin/orders.html', orders=orders)
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Çıkış yapıldı.", "info")
+    return redirect(url_for("index"))
 
-    @app.route('/admin/orders/delete/<int:id>', methods=['POST'])
-    def admin_delete_order(id):
-        if not session.get('admin'):
-            return redirect(url_for('admin_login'))
-        o = Order.query.get_or_404(id)
-        db.session.delete(o)
+# ---------- SİPARİŞ ----------
+@app.route("/order/<int:product_id>", methods=["GET", "POST"])
+def order(product_id):
+    if "user" not in session:
+        flash("Sipariş vermek için giriş yapmalısınız.", "warning")
+        return redirect(url_for("login"))
+
+    product = Product.query.get(product_id)
+    if request.method == "POST":
+        order = Order(
+            customer_name=session["user"],
+            product_name=product.name,
+            status="Beklemede"
+        )
+        db.session.add(order)
         db.session.commit()
-        flash('Sipariş silindi', 'success')
-        return redirect(url_for('admin_orders'))
+        flash("Siparişiniz alındı!", "success")
+        return redirect(url_for("menu"))
+    return render_template("order.html", product=product)
 
-    return app
+# ---------- ADMIN ----------
+@app.route("/admin")
+def admin_dashboard():
+    if not session.get("admin"):
+        flash("Bu sayfaya erişim yetkiniz yok.", "danger")
+        return redirect(url_for("login"))
 
-# run
+    orders = Order.query.all()
+    products = Product.query.all()
+    return render_template("admin/dashboard.html", orders=orders, products=products)
+
+@app.route("/admin/order/<int:id>/accept", methods=["POST"])
+def accept_order(id):
+    if not session.get("admin"):
+        flash("Bu işlemi yapmaya yetkiniz yok.", "danger")
+        return redirect(url_for("login"))
+
+    order = Order.query.get(id)
+    order.status = "Onaylandı"
+    db.session.commit()
+    flash("Sipariş onaylandı.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/admin/product/add", methods=["POST"])
+def add_product():
+    if not session.get("admin"):
+        flash("Bu işlemi yapmaya yetkiniz yok.", "danger")
+        return redirect(url_for("login"))
+
+    product = Product(
+        name=request.form["name"],
+        price=request.form["price"],
+        image=request.form["image"],
+        description=request.form["description"]
+    )
+    db.session.add(product)
+    db.session.commit()
+    flash("Ürün eklendi.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/admin/product/delete/<int:id>", methods=["POST"])
+def delete_product(id):
+    if not session.get("admin"):
+        flash("Bu işlemi yapmaya yetkiniz yok.", "danger")
+        return redirect(url_for("login"))
+
+    product = Product.query.get(id)
+    db.session.delete(product)
+    db.session.commit()
+    flash("Ürün silindi.", "success")
+    return redirect(url_for("admin_dashboard"))
+
 if __name__ == "__main__":
-    app = create_app()
+    create_admin_user()  # Admin kullanıcıyı oluştur
     app.run(debug=True)
+
+
+
+
+
+
+
+
+

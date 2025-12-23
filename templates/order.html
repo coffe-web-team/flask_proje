@@ -1,12 +1,17 @@
 {% extends "layout.html" %}
+
 {% block content %}
-<h2>Sipariş - {{ product.name }}</h2>
-<form method="post">
-  <label>Adınız</label>
-  <input name="customer_name" required>
-  <label>Telefon</label>
-  <input name="customer_phone" required>
-  <button type="submit" class="btn">Sipariş Gönder</button>
-</form>
+<div class="container">
+    <h2>{{ product.name }} Siparişi</h2>
+    <p>{{ product.description }}</p>
+    <p><strong>Fiyat:</strong> {{ product.price }} ₺</p>
+
+    <form method="post" class="form">
+        <input name="customer_name" placeholder="Ad Soyad" required>
+        <input name="customer_phone" placeholder="Telefon" required>
+        <button class="btn btn-primary">Siparişi Gönder</button>
+    </form>
+</div>
 {% endblock %}
+
 

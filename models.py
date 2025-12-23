@@ -4,19 +4,35 @@ db = SQLAlchemy()
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(150), nullable=False)
-    description = db.Column(db.Text)
-    price = db.Column(db.Float, default=0.0)
-    image_url = db.Column(db.String(300), default='/static/img/default-coffee.jpg')
+    name = db.Column(db.String(100))
+    price = db.Column(db.Integer)
+    image = db.Column(db.String(100))
+    description = db.Column(db.String(255))
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)  # hashed
+    username = db.Column(db.String(50), unique=True)
+    phone = db.Column(db.String(20))
+    password = db.Column(db.String(100))
+    is_admin = db.Column(db.Boolean, default=False)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    customer_name = db.Column(db.String(120), nullable=False)
-    customer_phone = db.Column(db.String(30), nullable=False)
-    product = db.relationship('Product', backref=db.backref('orders', lazy=True))
+    customer_name = db.Column(db.String(100))
+    product_name = db.Column(db.String(100))
+    status = db.Column(db.String(50), default="Beklemede")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
