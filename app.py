@@ -5,6 +5,10 @@ from config import Config
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
+with app.app_context():
+    db.create_all()
+    create_admin_user()
+
 
 # ---------- ADMIN KULLANICI OLUŞTURMA ----------
 def create_admin_user():
@@ -141,9 +145,7 @@ def delete_product(id):
     flash("Ürün silindi.", "success")
     return redirect(url_for("admin_dashboard"))
 
-if __name__ == "__main__":
-    create_admin_user()  # Admin kullanıcıyı oluştur
-    app.run(debug=True)
+
 
 
 
