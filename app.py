@@ -4,26 +4,32 @@ from config import Config
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
 db.init_app(app)
+
+# ---------- ADMIN KULLANICI OLUŞTURMA ----------
+def create_admin_user():
+    admin = User.query.filter_by(username="admin").first()
+    if not admin:
+        admin = User(
+            username="admin",
+            phone="1234567890",
+            password="admin123",
+            is_admin=True
+        )
+        db.session.add(admin)
+        db.session.commit()
+        print("Admin kullanıcı oluşturuldu: admin / admin123")
+
+# ---------- DB INIT ----------
 with app.app_context():
     db.create_all()
     create_admin_user()
 
-
-# ---------- ADMIN KULLANICI OLUŞTURMA ----------
-def create_admin_user():
-    with app.app_context():
-        admin = User.query.filter_by(username="admin").first()
-        if not admin:
-            admin = User(username="admin", phone="1234567890", password="admin123", is_admin=True)
-            db.session.add(admin)
-            db.session.commit()
-            print("Admin kullanıcı oluşturuldu: Kullanıcı Adı: admin, Şifre: admin123")
-
 # ---------- GENEL SAYFALAR ----------
 @app.route("/")
 def index():
-    products = Product.query.limit(3).all()  # Öne çıkan kahveler
+    products = Product.query.limit(3).all()
     return render_template("index.html", products=products)
 
 @app.route("/menu")
@@ -37,7 +43,7 @@ def about():
 
 @app.route("/contact")
 def contact():
-    return render_template("contact.html")  # İletişim sayfası eklendi
+    return render_template("contact.html")
 
 # ---------- AUTH ----------
 @app.route("/login", methods=["GET", "POST"])
@@ -59,7 +65,7 @@ def register():
             username=request.form["username"],
             phone=request.form["phone"],
             password=request.form["password"],
-            is_admin=False  # Varsayılan olarak admin değil
+            is_admin=False
         )
         db.session.add(user)
         db.session.commit()
@@ -81,16 +87,18 @@ def order(product_id):
         return redirect(url_for("login"))
 
     product = Product.query.get(product_id)
+
     if request.method == "POST":
-        order = Order(
+        new_order = Order(
             customer_name=session["user"],
             product_name=product.name,
             status="Beklemede"
         )
-        db.session.add(order)
+        db.session.add(new_order)
         db.session.commit()
         flash("Siparişiniz alındı!", "success")
         return redirect(url_for("menu"))
+
     return render_template("order.html", product=product)
 
 # ---------- ADMIN ----------
@@ -107,7 +115,7 @@ def admin_dashboard():
 @app.route("/admin/order/<int:id>/accept", methods=["POST"])
 def accept_order(id):
     if not session.get("admin"):
-        flash("Bu işlemi yapmaya yetkiniz yok.", "danger")
+        flash("Yetkiniz yok.", "danger")
         return redirect(url_for("login"))
 
     order = Order.query.get(id)
@@ -119,7 +127,7 @@ def accept_order(id):
 @app.route("/admin/product/add", methods=["POST"])
 def add_product():
     if not session.get("admin"):
-        flash("Bu işlemi yapmaya yetkiniz yok.", "danger")
+        flash("Yetkiniz yok.", "danger")
         return redirect(url_for("login"))
 
     product = Product(
@@ -136,7 +144,7 @@ def add_product():
 @app.route("/admin/product/delete/<int:id>", methods=["POST"])
 def delete_product(id):
     if not session.get("admin"):
-        flash("Bu işlemi yapmaya yetkiniz yok.", "danger")
+        flash("Yetkiniz yok.", "danger")
         return redirect(url_for("login"))
 
     product = Product.query.get(id)
@@ -144,6 +152,7 @@ def delete_product(id):
     db.session.commit()
     flash("Ürün silindi.", "success")
     return redirect(url_for("admin_dashboard"))
+
 
 
 
